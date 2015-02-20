@@ -17,6 +17,10 @@ public class collisionDetect : MonoBehaviour {
 	public bool mistake;
 	public float totalTime;
 	public StreamWriter writer;
+	public System.DateTime wat;
+	public System.TimeSpan dif;
+	public System.DateTime start;
+	public System.TimeSpan elapsed;
 	// Use this for initialization
 	void Start () {
 
@@ -28,6 +32,8 @@ public class collisionDetect : MonoBehaviour {
 		target = GameObject.Find ("tumor").transform;
 		errorPoint=GameObject.Find ("Cube1").transform;
 		errorPoint2 = GameObject.Find ("Cube2").transform;
+		wat = System.DateTime.Now;
+
 	}
 	
 
@@ -58,30 +64,35 @@ public class collisionDetect : MonoBehaviour {
 
 	void OnCollisionEnter (Collision col)
 	{
+		dif = System.DateTime.Now - wat;
+		elapsed = System.DateTime.Now - start;
+		Debug.Log ("here" + dif.TotalMilliseconds/1000);
+
 
 		Debug.Log (oldTime - (System.DateTime.UtcNow).Millisecond);
-		if (oldTime - (System.DateTime.UtcNow).Millisecond < 350) {
+		if (dif.TotalMilliseconds/1000 >= 2.0f) {
 
 	
 						if (col.gameObject.name == "Cube1" || col.gameObject.name == "Cube2") {
-				oldTime = (System.DateTime.UtcNow).Millisecond;
-								numberofFaults++;
 								Debug.Log ("Bad Bad! try again >:(");
-				StreamWriter writer = new StreamWriter (@"C:\Users\Omar\Documents\stats.txt");
-				writer.Write (numberofFaults.ToString() + " : " + numberofSuccess.ToString());
-				writer.Close ();
-		
+				numberofFaults++;
+				//StreamWriter writer = new StreamWriter (@"C:\Users\Omar\Documents\stats.txt");
+
+				string progress = numberofFaults.ToString() + " : " + numberofSuccess.ToString() + " @ time "+ elapsed.Minutes+"\r\n";
+				File.AppendAllText(@"C:\Users\Omar\Documents\stats.txt",progress);
+//				writer.WriteLine ("\r\n"+numberofFaults.ToString() + " : " + numberofSuccess.ToString() + " @ time "+ elapsed.TotalMinutes+"\r\n");
+//				writer.Close ();
 			} 
 
 			if (col.gameObject.name == "actualtumor") {
-				oldTime = (System.DateTime.UtcNow).Millisecond;
-				numberofSuccess++;
 				Debug.Log ("good job");
-				StreamWriter writer = new StreamWriter (@"C:\Users\Omar\Documents\stats.txt");
-				writer.Write (numberofFaults.ToString() + " : " + numberofSuccess.ToString());
-				writer.Close ();
+				numberofSuccess++;
+				//StreamWriter writer = new StreamWriter (@"C:\Users\Omar\Documents\stats.txt");
+//				writer.WriteLine ( "\r\n "+ numberofFaults.ToString() + " : " + numberofSuccess.ToString()+" @ time"+ elapsed.TotalMinutes+"\r\n");
+//				writer.Close ();
 				
 			} 
+			wat = System.DateTime.Now;
 			
 		}
 	}
