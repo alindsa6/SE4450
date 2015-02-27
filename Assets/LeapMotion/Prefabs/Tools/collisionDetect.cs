@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.IO;
+using System.Collections.Specialized;
+using System.Net;
+using System.Text;
+
 
 public class collisionDetect : MonoBehaviour {
 	public Transform target;
@@ -21,24 +25,36 @@ public class collisionDetect : MonoBehaviour {
 	public System.TimeSpan dif;
 	public System.DateTime start;
 	public System.TimeSpan elapsed;
+	public string    ratio;
+	public string   tims;
+	public string ra;
+	public string ti;
+	public int counter;
 	// Use this for initialization
+
 	void Start () {
 
+
+		ratio = "0";
+		tims = "0";
 		oldTime = 0.0f;
 		totalTime = Time.realtimeSinceStartup;
-		numberofFaults = 0;
-		numberofSuccess = 0;
+		numberofFaults = 1;
+		numberofSuccess = 1;
 		mistake = false;
 		target = GameObject.Find ("tumor").transform;
 		errorPoint=GameObject.Find ("Cube1").transform;
 		errorPoint2 = GameObject.Find ("Cube2").transform;
 		wat = System.DateTime.Now;
+		counter = 0;
 
+		
 	}
 	
 
 	// Update is called once per frame
 	void Update () {
+		//InvokeRepeating("sendData", 40, 0);
 
 		dist = Vector3.Distance (transform.position, target.transform.position);
 		errorDist1 = Vector3.Distance (transform.position, errorPoint.transform.position);
@@ -60,37 +76,80 @@ public class collisionDetect : MonoBehaviour {
 //		}
 	}
 
+	void sendData()
+	{
+		this.ra = ratio.ToString ();
+		this.ti = tims.ToString ();
+
+	
 
 
+
+		using (WebClient client = new WebClient())
+		{
+			Debug.Log("last time " + this.ratio.ToString());
+
+			
+			byte[] response =
+				client.UploadValues("http://localhost:8080/leapsurg/login", new NameValueCollection()
+				                    {
+					{ "rats", this.ratio.ToString() },
+					{ "tims", this.tims.ToString()}
+				});
+			
+			string result = System.Text.Encoding.UTF8.GetString(response);
+			Debug.Log (result.ToString());
+		}
+		
+	}
+	
+	
 	void OnCollisionEnter (Collision col)
 	{
 		dif = System.DateTime.Now - wat;
 		elapsed = System.DateTime.Now - start;
-		Debug.Log ("here" + dif.TotalMilliseconds/1000);
 
-
-		Debug.Log (oldTime - (System.DateTime.UtcNow).Millisecond);
 		if (dif.TotalMilliseconds/1000 >= 2.0f) {
+			numberofFaults++;
+			counter++;
 
-	
+			this.ratio = (this.ratio.ToString()+ ", "+(this.numberofFaults/this.numberofSuccess).ToString());
+			this.tims = (this.tims.ToString()+", "+this.elapsed.Seconds.ToString());
 						if (col.gameObject.name == "Cube1" || col.gameObject.name == "Cube2") {
-								Debug.Log ("Bad Bad! try again >:(");
-				numberofFaults++;
+				
+				this.ratio = (ratio.ToString()+ ", "+(numberofFaults/numberofSuccess).ToString());
+				Debug.Log(ratio);
+				this.tims = (tims.ToString()+", "+elapsed.Seconds.ToString());
+				Debug.Log(tims);
 				//StreamWriter writer = new StreamWriter (@"C:\Users\Omar\Documents\stats.txt");
 
-				string progress = numberofFaults.ToString() + " : " + numberofSuccess.ToString() + " @ time "+ elapsed.Minutes+"\r\n";
+				string progress = (numberofFaults/numberofSuccess).ToString() +  " @ time "+ elapsed.Minutes + " " + ra+"\r\n";
 				File.AppendAllText(@"C:\Users\Omar\Documents\stats.txt",progress);
 //				writer.WriteLine ("\r\n"+numberofFaults.ToString() + " : " + numberofSuccess.ToString() + " @ time "+ elapsed.TotalMinutes+"\r\n");
 //				writer.Close ();
+				if(counter == 5)
+				{
+					sendData();
+				}
 			} 
 
 			if (col.gameObject.name == "actualtumor") {
-				Debug.Log ("good job");
 				numberofSuccess++;
+				counter++;
+				this.ratio = (this.ratio.ToString()+ ", "+(this.numberofFaults/this.numberofSuccess).ToString());
+				Debug.Log(ratio);
+				this.tims = (this.tims.ToString()+", "+this.elapsed.Seconds.ToString());
+				Debug.Log(tims);
+
+				//ratio.Append(numberofFaults/numberofSuccess+", ");
+				//tims.Append (elapsed.Seconds+", ");
 				//StreamWriter writer = new StreamWriter (@"C:\Users\Omar\Documents\stats.txt");
 //				writer.WriteLine ( "\r\n "+ numberofFaults.ToString() + " : " + numberofSuccess.ToString()+" @ time"+ elapsed.TotalMinutes+"\r\n");
 //				writer.Close ();
-				
+				if(counter == 5)
+				{
+					sendData();
+				}
 			} 
 			wat = System.DateTime.Now;
 			
