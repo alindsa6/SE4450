@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections.Specialized;
 using System.Net;
 using System.Text;
+using System.Threading;
 
 
 public class collisionDetect : MonoBehaviour {
@@ -129,7 +130,8 @@ public class collisionDetect : MonoBehaviour {
 //				writer.Close ();
 				if(counter == 5)
 				{
-					sendData();
+					Thread sendThread = new Thread(sendData);
+					sendThread.Start();
 				}
 			} 
 
