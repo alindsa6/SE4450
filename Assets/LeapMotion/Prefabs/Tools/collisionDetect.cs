@@ -31,11 +31,18 @@ public class collisionDetect : MonoBehaviour {
 	public string ra;
 	public string ti;
 	public int counter;
+	public Vector3 head;
+	public string heading;
+	public string y;
+	public string z;
+
 	// Use this for initialization
 
 	void Start () {
 
-
+		heading = "0";
+		y = "0";
+		z = "0";
 		ratio = "0";
 		tims = "0";
 		oldTime = 0.0f;
@@ -55,7 +62,19 @@ public class collisionDetect : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+
+
+
 		//InvokeRepeating("sendData", 40, 0);
+
+		head = target.position - this.transform.position;
+		head.z = 0;
+		heading = heading + ", " + head.sqrMagnitude;
+
+		y = y + ", " + (target.position.z - this.transform.position.z);
+
+
+		z = z + ", " + Time.time;
 
 		dist = Vector3.Distance (transform.position, target.transform.position);
 		errorDist1 = Vector3.Distance (transform.position, errorPoint.transform.position);
@@ -95,11 +114,16 @@ public class collisionDetect : MonoBehaviour {
 				client.UploadValues("http://localhost:8080/leapsurg/login", new NameValueCollection()
 				                    {
 					{ "rats", this.ratio.ToString() },
-					{ "tims", this.tims.ToString()}
+					{ "tims", this.tims.ToString()},
+					{ "heading", this.heading.ToString() },
+					{ "y", this.y.ToString() },
+					{ "z", this.z.ToString() }
 				});
 			
 			string result = System.Text.Encoding.UTF8.GetString(response);
 			Debug.Log (result.ToString());
+
+			counter = 0 ; 
 		}
 		
 	}
