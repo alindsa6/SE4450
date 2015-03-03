@@ -69,7 +69,7 @@ public class collisionDetect : MonoBehaviour
       this.ti = tims.ToString();
       using (WebClient client = new WebClient())
       {
-         Debug.Log("last time " + this.ratio.ToString() + "\nSending data to server");
+         Debug.Log("last time " + this.ratio.ToString() + ". Sending data to server");
          byte[] response =
             client.UploadValues("http://localhost:8080/leapsurg/login", new NameValueCollection()
                                 {
