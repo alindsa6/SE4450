@@ -59,34 +59,34 @@ public class toolChanger : MonoBehaviour {
 			case(Gesture.GestureType.TYPESWIPE):
 			{
 
-				SwipeGesture swipe = new SwipeGesture(gesture);
-				Vector  swipDirection = swipe.Direction;
-				if(swipDirection.x<0 )
-				{
-				
-					//some shit here I found on the internet to rotate a unity object
-					Quaternion newRotation = new Quaternion(camera.transform.rotation.x,camera.transform.rotation.y,camera.transform.rotation.z,camera.transform.rotation.w);;
-					
-					//next time we swip left we need to know where to go from our last rotation
-					newRotation *= Quaternion.Euler(0, -100, 0); // this add a -90 degrees Y rotation
-					
-					//2*time.delta says to rotate 2 degrees every second
-					transform.rotation= Quaternion.Slerp(camera.transform.rotation, newRotation,  Time.deltaTime); 
-
-					}
-				if(swipDirection.x>0 )
-				{
-					//some shit here I found on the internet to rotate a unity object
-					Quaternion newRotation = new Quaternion(camera.transform.rotation.x,camera.transform.rotation.y,camera.transform.rotation.z,camera.transform.rotation.w);;
-					
-					//next time we swip left we need to know where to go from our last rotation
-					newRotation *= Quaternion.Euler(0, 100, 0); // this add a -90 degrees Y rotation
-					
-					//2*time.delta says to rotate 2 degrees every second
-					transform.rotation= Quaternion.Slerp(camera.transform.rotation, newRotation, 8* Time.deltaTime); 
-
-
-					}
+//				SwipeGesture swipe = new SwipeGesture(gesture);
+//				Vector  swipDirection = swipe.Direction;
+//				if(swipDirection.x<0 )
+//				{
+//				
+//					//some shit here I found on the internet to rotate a unity object
+//					Quaternion newRotation = new Quaternion(camera.transform.rotation.x,camera.transform.rotation.y,camera.transform.rotation.z,camera.transform.rotation.w);;
+//					
+//					//next time we swip left we need to know where to go from our last rotation
+//					newRotation *= Quaternion.Euler(0, -100, 0); // this add a -90 degrees Y rotation
+//					
+//					//2*time.delta says to rotate 2 degrees every second
+//					transform.rotation= Quaternion.Slerp(camera.transform.rotation, newRotation,  Time.deltaTime); 
+//
+//					}
+//				if(swipDirection.x>0 )
+//				{
+//					//some shit here I found on the internet to rotate a unity object
+//					Quaternion newRotation = new Quaternion(camera.transform.rotation.x,camera.transform.rotation.y,camera.transform.rotation.z,camera.transform.rotation.w);;
+//					
+//					//next time we swip left we need to know where to go from our last rotation
+//					newRotation *= Quaternion.Euler(0, 100, 0); // this add a -90 degrees Y rotation
+//					
+//					//2*time.delta says to rotate 2 degrees every second
+//					transform.rotation= Quaternion.Slerp(camera.transform.rotation, newRotation, 8* Time.deltaTime); 
+//
+//
+//					}
 				
 				//				Debug.Log("Swipe gesture recognized.");
 				//				hc.toolModel = tool2;
