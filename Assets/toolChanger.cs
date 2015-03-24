@@ -2,6 +2,8 @@
 using System.Collections;
 using Leap;
 using System.Timers;
+using System;
+//using System.Threading;
 public class toolChanger : MonoBehaviour
 {
    Leap.Controller controller;	// Use this for initialization
@@ -13,19 +15,16 @@ public class toolChanger : MonoBehaviour
    public float smooth = 2.0F;
    public float tiltAngle = 30.0F;
    private volatile bool canSwipe = true;
-   private Timer swipeTimer;
+
+   private GameObject toolsTray;
+   private GameObject operatingView;
+   private GameObject current;
+
+   private Action moveCamera;
+   private Vector3 targetPosition;
 
    public toolChanger()
    {
-      swipeTimer = new Timer(1000);
-      swipeTimer.Elapsed += swipeTimerElapsed;
-      swipeTimer.AutoReset = false;
-   }
-
-   private void swipeTimerElapsed(object sender, ElapsedEventArgs e)
-   {
-      Debug.Log("Timer Elapsed. You can swipe again.");
-      canSwipe = true;
    }
 
    void Start()
@@ -36,6 +35,10 @@ public class toolChanger : MonoBehaviour
       controller.EnableGesture(Gesture.GestureType.TYPEKEYTAP);
       controller.EnableGesture(Gesture.GestureType.TYPESCREENTAP);
       controller.EnableGesture(Gesture.GestureType.TYPESWIPE);
+      toolsTray = GameObject.Find("ToolsTrayPosition");
+      operatingView = GameObject.Find("OperatingPosition");
+      current = GameObject.Find("Main Camera");
+
    }
    public void OnConnect(Controller controller)
    {
@@ -85,16 +88,25 @@ public class toolChanger : MonoBehaviour
                   }
 
                   canSwipe = false;
-                  swipeTimer.Start();
                   Debug.Log("Swipe detected.");
 
                   if (swipDirection.x<0)
                   {
-                     transform.RotateAround(camera.position, Vector3.up, -45f);
+                     targetPosition = toolsTray.transform.position;
+                     moveCamera = () =>
+                        {
+                           current.transform.position = Vector3.MoveTowards(current.transform.position, targetPosition, 0.1f);
+                        };
+                     transform.RotateAround(camera.position, Vector3.right, 20f);
                   }
                   if (swipDirection.x>0)
                   {
-                     transform.RotateAround(camera.position, Vector3.up, 45f);
+                     targetPosition = operatingView.transform.position;
+                     moveCamera = () =>
+                     {
+                        current.transform.position = Vector3.MoveTowards(current.transform.position, targetPosition, 0.1f);
+                     };
+                     transform.RotateAround(camera.position, Vector3.right, -20f);
                   }
                   break;
                }
@@ -105,12 +117,15 @@ public class toolChanger : MonoBehaviour
                }
          }
       }
-   }
 
-   void OnDestroy()
-   {
-      Debug.Log("Destroyed!");
-      swipeTimer.Dispose();
-      swipeTimer = null;
+      if (moveCamera != null)
+      {
+         moveCamera.Invoke();
+         if (current.transform.position == targetPosition)
+         {
+            canSwipe = true;
+            moveCamera = null;
+         }
+      }
    }
 }
