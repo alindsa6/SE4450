@@ -56,7 +56,7 @@ public class toolChanger : MonoBehaviour
                {
                   Debug.Log("Circle gesture recognized.");
 
-                  hc.toolModel = tool1;
+                //  hc.toolModel = tool1;
                   break;
                }
             case (Gesture.GestureType.TYPEINVALID):
@@ -67,14 +67,14 @@ public class toolChanger : MonoBehaviour
             case (Gesture.GestureType.TYPEKEYTAP):
                {
                   Debug.Log("Key Tap gesture recognized.");
-                  hc.toolModel = tool2;
+                //  hc.toolModel = tool2;
 
                   break;
                }
             case (Gesture.GestureType.TYPESCREENTAP):
                {
                   Debug.Log("Screen tap gesture recognized.");
-                  hc.toolModel = tool2;
+                 // hc.toolModel = tool2;
 
                   break;
                }
