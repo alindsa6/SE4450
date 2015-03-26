@@ -18,17 +18,23 @@ public class toolChanger : MonoBehaviour
 
    private GameObject toolsTrayViewPosition;
    private GameObject toolsTrayLookPosition;
+
    private GameObject operatingViewPosition;
    private GameObject operatingLookPosition;
+
    private GameObject tvViewPosition;
+   private GameObject tvLookPosition;
+
    private GameObject current;
 
-   private GameObject tvLookPosition;
 
    private Action moveCamera;
    private Vector3 targetPosition;
    private Vector3 targetLookPosition;
-   private Vector3 targetAngle;
+
+   private CameraPosition currentPosition;
+
+   enum CameraPosition { brainView, trayView, tvView }
 
    public toolChanger()
    {
@@ -49,8 +55,10 @@ public class toolChanger : MonoBehaviour
       tvViewPosition = GameObject.Find("TvPosition");
       tvLookPosition = GameObject.Find("TvLookPosition");
       current = GameObject.Find("Main Camera");
+      currentPosition = CameraPosition.brainView;
 
    }
+
    public void OnConnect(Controller controller)
    {
       controller.EnableGesture(Gesture.GestureType.TYPECIRCLE, true);
@@ -65,22 +73,8 @@ public class toolChanger : MonoBehaviour
          {
             case (Gesture.GestureType.TYPECIRCLE):
                {
-                  if (cameraIsMoving)
-                  {
-                     return;
-                  }
-                  cameraIsMoving = true;
-
-                  targetPosition = tvViewPosition.transform.position;
-                  targetLookPosition = tvLookPosition.transform.position;
-                  moveCamera = () =>
-                  {
-                     current.transform.position = Vector3.MoveTowards(current.transform.position, targetPosition, 0.1f);
-                     
-                     Vector3 targetDir = tvLookPosition.transform.position - current.transform.position;
-                     Vector3 newDir = Vector3.RotateTowards(current.transform.forward, targetDir, 0.02f, 1f);
-                     current.transform.rotation = Quaternion.LookRotation(newDir);
-                  };
+                  // CIRCLE gesture keeps getting triggered even without an actual circle gesture.
+                  // Don't use this gesture for now.
                   break;
                }
             case (Gesture.GestureType.TYPEINVALID):
@@ -110,17 +104,36 @@ public class toolChanger : MonoBehaviour
                   cameraIsMoving = true;
                   Debug.Log("Swipe detected.");
 
-                  if (swipDirection.x<0)
+                  bool swipedLeft = swipDirection.x < 0;
+                  bool swipedRight = !swipedLeft;
+
+                  if ( (currentPosition == CameraPosition.brainView && swipedLeft) // At brain and swiped left
+                     || (currentPosition == CameraPosition.tvView && swipedRight) )// At tv and swiped right
                   {
                      targetPosition = toolsTrayViewPosition.transform.position;
-                     //targetAngle = new Vector3(30f, 0f, 0f); // optimum angle for viewing the tools tray
                      targetLookPosition = toolsTrayLookPosition.transform.position;
+                     currentPosition = CameraPosition.trayView;
                   }
-                  else if (swipDirection.x>0)
+                  else if (currentPosition == CameraPosition.trayView)
                   {
-                     targetPosition = operatingViewPosition.transform.position;
-                     //targetAngle = new Vector3(10f, 0f, 0f); // optimum angle for viewing the brain
-                     targetLookPosition = operatingLookPosition.transform.position;
+                     if (swipedLeft)
+                     {
+                        targetPosition = tvViewPosition.transform.position;
+                        targetLookPosition = tvLookPosition.transform.position;
+                        currentPosition = CameraPosition.tvView;
+                     }
+                     else if (swipedRight)
+                     {
+                        targetPosition = operatingViewPosition.transform.position;
+                        targetLookPosition = operatingLookPosition.transform.position;
+                        currentPosition = CameraPosition.brainView;
+                     }
+                  }
+                  else
+                  {
+                     // invalid swipe at current location
+                     cameraIsMoving = false;
+                     return;
                   }
 
                   moveCamera = () =>
