@@ -22,6 +22,7 @@ public class toolChanger : MonoBehaviour
 
    private Action moveCamera;
    private Vector3 targetPosition;
+   private Vector3 targetAngle;
 
    public toolChanger()
    {
@@ -54,7 +55,7 @@ public class toolChanger : MonoBehaviour
          {
             case (Gesture.GestureType.TYPECIRCLE):
                {
-                  Debug.Log("Circle gesture recognized.");
+                  //Debug.Log("Circle gesture recognized.");
 
                 //  hc.toolModel = tool1;
                   break;
@@ -93,20 +94,22 @@ public class toolChanger : MonoBehaviour
                   if (swipDirection.x<0)
                   {
                      targetPosition = toolsTray.transform.position;
+                     targetAngle = new Vector3(30f, 0f, 0f); // optimum angle for viewing the tools tray
                      moveCamera = () =>
                         {
                            current.transform.position = Vector3.MoveTowards(current.transform.position, targetPosition, 0.1f);
+                           current.transform.eulerAngles = Vector3.RotateTowards(current.transform.eulerAngles, targetAngle, 0.2f, 0.7f);
                         };
-                     transform.RotateAround(camera.position, Vector3.right, 20f);
                   }
                   if (swipDirection.x>0)
                   {
                      targetPosition = operatingView.transform.position;
+                     targetAngle = new Vector3(10f, 0f, 0f); // optimum angle for viewing the brain
                      moveCamera = () =>
                      {
                         current.transform.position = Vector3.MoveTowards(current.transform.position, targetPosition, 0.1f);
+                        current.transform.eulerAngles = Vector3.RotateTowards(current.transform.eulerAngles, targetAngle, 0.2f, 0.7f);
                      };
-                     transform.RotateAround(camera.position, Vector3.right, -20f);
                   }
                   break;
                }
@@ -121,7 +124,7 @@ public class toolChanger : MonoBehaviour
       if (moveCamera != null)
       {
          moveCamera.Invoke();
-         if (current.transform.position == targetPosition)
+         if (current.transform.position == targetPosition && current.transform.eulerAngles == targetAngle)
          {
             canSwipe = true;
             moveCamera = null;
