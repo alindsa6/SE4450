@@ -161,7 +161,7 @@ public class collisionDetect : MonoBehaviour {
 				numberofSuccess++;
 				counter++;
 				Debug.Log ("SCUCCES");
-				col.gameObject.renderer.material.color =  Color.Lerp(Color.yellow, Color.red, Time.time);
+				target.renderer.material.color =  Color.Lerp(Color.yellow, Color.red, Time.time);
 
 				this.ratio = (this.ratio.ToString()+ ", "+(this.numberofFaults/this.numberofSuccess).ToString());
 				Debug.Log(ratio);
