@@ -132,7 +132,6 @@ public class collisionDetect : MonoBehaviour {
 	{
 		dif = System.DateTime.Now - wat;
 		elapsed = System.DateTime.Now - start;
-
 		if (dif.TotalMilliseconds/1000 >= 2.0f) {
 			numberofFaults++;
 			counter++;
@@ -161,6 +160,9 @@ public class collisionDetect : MonoBehaviour {
 			if (col.gameObject.name == "actualtumor") {
 				numberofSuccess++;
 				counter++;
+				Debug.Log ("SCUCCES");
+				col.gameObject.renderer.material.color =  Color.Lerp(Color.yellow, Color.red, Time.time);
+
 				this.ratio = (this.ratio.ToString()+ ", "+(this.numberofFaults/this.numberofSuccess).ToString());
 				Debug.Log(ratio);
 				this.tims = (this.tims.ToString()+", "+this.elapsed.Seconds.ToString());
