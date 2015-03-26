@@ -14,14 +14,20 @@ public class toolChanger : MonoBehaviour
    public Transform camera;
    public float smooth = 2.0F;
    public float tiltAngle = 30.0F;
-   private volatile bool canSwipe = true;
+   private volatile bool cameraIsMoving = false;
 
-   private GameObject toolsTray;
-   private GameObject operatingView;
+   private GameObject toolsTrayViewPosition;
+   private GameObject toolsTrayLookPosition;
+   private GameObject operatingViewPosition;
+   private GameObject operatingLookPosition;
+   private GameObject tvViewPosition;
    private GameObject current;
+
+   private GameObject tvLookPosition;
 
    private Action moveCamera;
    private Vector3 targetPosition;
+   private Vector3 targetLookPosition;
    private Vector3 targetAngle;
 
    public toolChanger()
@@ -36,8 +42,12 @@ public class toolChanger : MonoBehaviour
       controller.EnableGesture(Gesture.GestureType.TYPEKEYTAP);
       controller.EnableGesture(Gesture.GestureType.TYPESCREENTAP);
       controller.EnableGesture(Gesture.GestureType.TYPESWIPE);
-      toolsTray = GameObject.Find("ToolsTrayPosition");
-      operatingView = GameObject.Find("OperatingPosition");
+      toolsTrayViewPosition = GameObject.Find("ToolsTrayPosition");
+      toolsTrayLookPosition = GameObject.Find("ToolsTrayLookPosition");
+      operatingViewPosition = GameObject.Find("OperatingPosition");
+      operatingLookPosition = GameObject.Find("Brain_Model");
+      tvViewPosition = GameObject.Find("TvPosition");
+      tvLookPosition = GameObject.Find("TvLookPosition");
       current = GameObject.Find("Main Camera");
 
    }
@@ -55,6 +65,22 @@ public class toolChanger : MonoBehaviour
          {
             case (Gesture.GestureType.TYPECIRCLE):
                {
+                  if (cameraIsMoving)
+                  {
+                     return;
+                  }
+                  cameraIsMoving = true;
+
+                  targetPosition = tvViewPosition.transform.position;
+                  targetLookPosition = tvLookPosition.transform.position;
+                  moveCamera = () =>
+                  {
+                     current.transform.position = Vector3.MoveTowards(current.transform.position, targetPosition, 0.1f);
+                     
+                     Vector3 targetDir = tvLookPosition.transform.position - current.transform.position;
+                     Vector3 newDir = Vector3.RotateTowards(current.transform.forward, targetDir, 0.02f, 1f);
+                     current.transform.rotation = Quaternion.LookRotation(newDir);
+                  };
                   break;
                }
             case (Gesture.GestureType.TYPEINVALID):
@@ -76,34 +102,35 @@ public class toolChanger : MonoBehaviour
                {
                   Vector swipDirection = new SwipeGesture(gesture).Direction;
 
-                  if (!canSwipe)
+                  if (cameraIsMoving)
                   {
                      return;
                   }
 
-                  canSwipe = false;
+                  cameraIsMoving = true;
                   Debug.Log("Swipe detected.");
 
                   if (swipDirection.x<0)
                   {
-                     targetPosition = toolsTray.transform.position;
-                     targetAngle = new Vector3(30f, 0f, 0f); // optimum angle for viewing the tools tray
-                     moveCamera = () =>
-                        {
-                           current.transform.position = Vector3.MoveTowards(current.transform.position, targetPosition, 0.1f);
-                           current.transform.eulerAngles = Vector3.RotateTowards(current.transform.eulerAngles, targetAngle, 0.2f, 0.7f);
-                        };
+                     targetPosition = toolsTrayViewPosition.transform.position;
+                     //targetAngle = new Vector3(30f, 0f, 0f); // optimum angle for viewing the tools tray
+                     targetLookPosition = toolsTrayLookPosition.transform.position;
                   }
-                  if (swipDirection.x>0)
+                  else if (swipDirection.x>0)
                   {
-                     targetPosition = operatingView.transform.position;
-                     targetAngle = new Vector3(10f, 0f, 0f); // optimum angle for viewing the brain
-                     moveCamera = () =>
-                     {
-                        current.transform.position = Vector3.MoveTowards(current.transform.position, targetPosition, 0.1f);
-                        current.transform.eulerAngles = Vector3.RotateTowards(current.transform.eulerAngles, targetAngle, 0.2f, 0.7f);
-                     };
+                     targetPosition = operatingViewPosition.transform.position;
+                     //targetAngle = new Vector3(10f, 0f, 0f); // optimum angle for viewing the brain
+                     targetLookPosition = operatingLookPosition.transform.position;
                   }
+
+                  moveCamera = () =>
+                  {
+                     current.transform.position = Vector3.MoveTowards(current.transform.position, targetPosition, 0.1f);
+
+                     Vector3 targetDir = targetLookPosition - current.transform.position;
+                     Vector3 newDir = Vector3.RotateTowards(current.transform.forward, targetDir, 0.02f, 1f);
+                     current.transform.rotation = Quaternion.LookRotation(newDir);
+                  };
                   break;
                }
 
@@ -117,9 +144,20 @@ public class toolChanger : MonoBehaviour
       if (moveCamera != null)
       {
          moveCamera.Invoke();
-         if (current.transform.position == targetPosition && current.transform.eulerAngles == targetAngle)
+
+         // Vectors representing the look direction
+         Vector3 forward = current.transform.forward;
+         Vector3 target = targetLookPosition - current.transform.position;
+
+         // Calculate if the camera is done moving
+         bool positionIsDone = current.transform.position == targetPosition;
+         bool lookIsDone = Math.Abs(Vector3.Angle(forward, target)) < Mathf.Epsilon;
+         if (positionIsDone && lookIsDone)
          {
-            canSwipe = true;
+            Debug.Log("End of camera movement");
+            // The camera has reached its final position and angle.
+            // It is no longer moving
+            cameraIsMoving = false;
             moveCamera = null;
          }
       }
