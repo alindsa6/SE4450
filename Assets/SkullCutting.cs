@@ -36,26 +36,36 @@ public class SkullCutting : MonoBehaviour {
          Debug.Log("Top right");
          hit1 = true;
          didStart = true;
+			if(!audio.isPlaying)
+			audio.Play();
       }
       if (col.gameObject == topLeft)
       {
          Debug.Log("Top LEft");
          hit2 = true;
          hit1 = false;
+			if(!audio.isPlaying)
+				audio.Play();
       }
       if (col.gameObject == lowerLeft)
       {
          Debug.Log("lower LEft");
          hit3 = true;
-      }
+			if(!audio.isPlaying)
+				audio.Play();      }
       if (col.gameObject == LowerRight)
       {
          Debug.Log("lower right");
          hit4 = true;
-      }
+			if(!audio.isPlaying)
+				audio.Play();    
+		}
 
       if (hit1 && hit2 && hit3 && hit4 && didStart)
       {
+			this.collider.enabled = false;
+			skull.collider.enabled = true;
+			skull.rigidbody.constraints = RigidbodyConstraints.None;
          Debug.Log("Done");
          skull.rigidbody.useGravity = true;
       }
