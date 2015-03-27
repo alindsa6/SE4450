@@ -7,11 +7,13 @@ public class toolCollision : MonoBehaviour
    public ToolModel tool1;
 
    public GameObject scalpel;
+   public GameObject saw;
 
    // Use this for initialization
    void Start()
    {
       scalpel = GameObject.Find("scalpelTrayModel");
+      saw = GameObject.Find("sawTrayModel");
    }
 
    // Update is called once per frame
@@ -32,6 +34,11 @@ public class toolCollision : MonoBehaviour
          }
 
          foreach (Renderer renderer in scalpel.gameObject.GetComponentsInChildren(typeof(Renderer)))
+         {
+            renderer.enabled = true;
+         }
+
+         foreach (Renderer renderer in saw.gameObject.GetComponentsInChildren(typeof(Renderer)))
          {
             renderer.enabled = true;
          }

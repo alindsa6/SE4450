@@ -16,5 +16,6 @@ public class screen2 : MonoBehaviour {
 	
 	void OnCollisionEnter(Collision collision) {
 		Debug.Log ("SCREEN2");
+      Application.LoadLevel("Level2"); 
 	}
 }
