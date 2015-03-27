@@ -138,9 +138,7 @@ public class collisionDetect : MonoBehaviour {
 		if (dif.TotalMilliseconds/1000 >= 2.0f) {
 			numberofFaults++;
 			counter++;
-			foreach (ContactPoint contact in col.contacts) {
-				Instantiate (blood.transform, contact.point, Quaternion.LookRotation(contact.normal));
-			}
+	
 			this.ratio = (this.ratio.ToString()+ ", "+(this.numberofFaults/this.numberofSuccess).ToString());
 			this.tims = (this.tims.ToString()+", "+this.elapsed.Seconds.ToString());
 						if (col.gameObject.name == "Cube1" || col.gameObject.name == "Cube2") {
