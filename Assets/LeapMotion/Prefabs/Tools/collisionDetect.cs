@@ -163,8 +163,6 @@ public class collisionDetect : MonoBehaviour {
 			if (col.gameObject.name == "actualtumor") {
 				numberofSuccess++;
 				counter++;
-				Debug.Log ("SCUCCES");
-				target.renderer.material.color =  Color.Lerp(Color.yellow, Color.red, Time.time);
 
 				this.ratio = (this.ratio.ToString()+ ", "+(this.numberofFaults/this.numberofSuccess).ToString());
 				Debug.Log(ratio);
