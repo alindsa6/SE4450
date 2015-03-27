@@ -29,6 +29,7 @@ public class toolChanger : MonoBehaviour
 
 
    private Action moveCamera;
+	private GameObject zoomedCamera;
    private Vector3 targetPosition;
    private Vector3 targetLookPosition;
 
@@ -42,6 +43,7 @@ public class toolChanger : MonoBehaviour
 
    void Start()
    {
+		zoomedCamera = GameObject.Find ("Camera");
       controller = new Controller();
       controller.EnableGesture(Gesture.GestureType.TYPECIRCLE);
       controller.EnableGesture(Gesture.GestureType.TYPEINVALID);
@@ -66,6 +68,15 @@ public class toolChanger : MonoBehaviour
    // Update is called once per frame
    void Update()
    {
+		if (currentPosition == CameraPosition.tvView) {
+			zoomedCamera.SetActive(false);
+		}
+		else
+		{
+
+			zoomedCamera.SetActive(true);
+
+		}
       Frame frame = controller.Frame();
       foreach (Gesture gesture in frame.Gestures())
       {
