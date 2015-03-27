@@ -29,21 +29,48 @@ public class toolChanger : MonoBehaviour
 
 
    private Action moveCamera;
-	private GameObject zoomedCamera;
+   private GameObject zoomedCamera;
    private Vector3 targetPosition;
    private Vector3 targetLookPosition;
 
    private CameraPosition currentPosition;
-
    enum CameraPosition { brainView, trayView, tvView }
+
+   private Timer brainBeatTimer = new Timer(1050);
+   private Timer brainBeatUpTimer = new Timer(300);
+   private volatile bool pulseUp = false;
+   private volatile bool pulseDown = false;
 
    public toolChanger()
    {
+      brainBeatTimer.Elapsed += brainBeatTimer_Elapsed;
+      brainBeatTimer.Start();
+      brainBeatUpTimer.AutoReset = false;
+      brainBeatUpTimer.Elapsed += brainBeatUpTimer_Elapsed;
+   }
+
+
+   private void brainBeatTimer_Elapsed(object sender, ElapsedEventArgs e)
+   {
+      pulseUp = true;
+   }
+   private void brainBeatUpTimer_Elapsed(object sender, ElapsedEventArgs e)
+   {
+      pulseDown = true;
+   }
+
+   void OnDestroy()
+   {
+      brainBeatTimer.Dispose();
+      brainBeatTimer = null;
+      brainBeatUpTimer.Dispose();
+      brainBeatUpTimer = null;
+      Debug.Log("Destroyed");
    }
 
    void Start()
    {
-		zoomedCamera = GameObject.Find ("Camera");
+      zoomedCamera = GameObject.Find("Camera");
       controller = new Controller();
       controller.EnableGesture(Gesture.GestureType.TYPECIRCLE);
       controller.EnableGesture(Gesture.GestureType.TYPEINVALID);
@@ -58,7 +85,6 @@ public class toolChanger : MonoBehaviour
       tvLookPosition = GameObject.Find("TvLookPosition");
       current = GameObject.Find("Main Camera");
       currentPosition = CameraPosition.brainView;
-
    }
 
    public void OnConnect(Controller controller)
@@ -68,15 +94,24 @@ public class toolChanger : MonoBehaviour
    // Update is called once per frame
    void Update()
    {
-		if (currentPosition == CameraPosition.tvView) {
-			zoomedCamera.SetActive(false);
-		}
-		else
-		{
+      // Hide the zoomed camera if we're looking at the tv
+      zoomedCamera.SetActive(currentPosition != CameraPosition.tvView);
 
-			zoomedCamera.SetActive(true);
+      // Give the brain a pulsing heart beat
+      if (pulseUp)
+      {
+         Vector3 target = operatingLookPosition.transform.position - new Vector3(0f, 0f, 0.2f);
+         operatingLookPosition.transform.position = Vector3.MoveTowards(operatingLookPosition.transform.position, target, 0.005f);
+         brainBeatUpTimer.Start();
+         pulseUp = false;
+      }
+      if (pulseDown)
+      {
+         Vector3 target = operatingLookPosition.transform.position + new Vector3(0f, 0f, 0.2f);
+         operatingLookPosition.transform.position = Vector3.MoveTowards(operatingLookPosition.transform.position, target, 0.005f);
+         pulseDown = false;
+      }
 
-		}
       Frame frame = controller.Frame();
       foreach (Gesture gesture in frame.Gestures())
       {
@@ -118,8 +153,8 @@ public class toolChanger : MonoBehaviour
                   bool swipedLeft = swipDirection.x < 0;
                   bool swipedRight = !swipedLeft;
 
-                  if ( (currentPosition == CameraPosition.brainView && swipedLeft) // At brain and swiped left
-                     || (currentPosition == CameraPosition.tvView && swipedRight) )// At tv and swiped right
+                  if ((currentPosition == CameraPosition.brainView && swipedLeft) // At brain and swiped left
+                     || (currentPosition == CameraPosition.tvView && swipedRight))// At tv and swiped right
                   {
                      targetPosition = toolsTrayViewPosition.transform.position;
                      targetLookPosition = toolsTrayLookPosition.transform.position;
