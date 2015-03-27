@@ -95,20 +95,20 @@ public class toolChanger : MonoBehaviour
    void Update()
    {
       // Hide the zoomed camera if we're looking at the tv
-      zoomedCamera.SetActive(currentPosition != CameraPosition.tvView);
+      zoomedCamera.SetActive(currentPosition == CameraPosition.brainView);
 
       // Give the brain a pulsing heart beat
       if (pulseUp)
       {
          Vector3 target = operatingLookPosition.transform.position - new Vector3(0f, 0f, 0.2f);
-         operatingLookPosition.transform.position = Vector3.MoveTowards(operatingLookPosition.transform.position, target, 0.005f);
+         operatingLookPosition.transform.position = Vector3.MoveTowards(operatingLookPosition.transform.position, target, 0.009f);
          brainBeatUpTimer.Start();
          pulseUp = false;
       }
       if (pulseDown)
       {
          Vector3 target = operatingLookPosition.transform.position + new Vector3(0f, 0f, 0.2f);
-         operatingLookPosition.transform.position = Vector3.MoveTowards(operatingLookPosition.transform.position, target, 0.005f);
+         operatingLookPosition.transform.position = Vector3.MoveTowards(operatingLookPosition.transform.position, target, 0.009f);
          pulseDown = false;
       }
 

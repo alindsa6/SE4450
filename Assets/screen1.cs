@@ -2,10 +2,10 @@
 using System.Collections;
 
 public class screen1 : MonoBehaviour {
-	public GameObject x;
+	// GameObject x;
 	// Use this for initialization
 	void Start () {
-		x.SetActive (false);
+		//x.SetActive (false);
 
 	
 	}
